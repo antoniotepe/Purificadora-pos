@@ -121,8 +121,8 @@ function getView(){
 
                     <div class="form-group">
                         <div class="input-group">
-                            <input class="form-control" type="search" placeholder="Buscar Cliente">
-                            <button class="btn btn-info btn-sm hand shadow">
+                            <input class="form-control" type="search" placeholder="Buscar Cliente" id="txtFiltrar">
+                            <button class="btn btn-info btn-sm hand shadow" id="btnBuscarCliente" onclick="get_lista_clientes()">
                                 <i class="fal fa-search"></i>
                             </button>
                         </div>
@@ -137,18 +137,10 @@ function getView(){
                                         <td>Teléfonos</td>
                                     </tr>
                                 </thead>
-                                <tbody id="tblpPedidos">
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
+                                <tbody id="tblDataClientes">
+                                  
                                 </tbody> 
-                                <tfoot>
-                                    <tr>
-
-                                    </tr>
-                                </tfoot> 
+                               
                                 
                             </table>
                         </div>
@@ -166,9 +158,9 @@ function getView(){
                 </button>
 
                 
-                 <button class="btn btn-circle btn-xl btn-success btn-bottom-r   hand shadow" id="btnAgregarCliente">
-                                        <i class="fal fa-plus"></i>
-                                </button> 
+                <button class="btn btn-circle btn-xl btn-success btn-bottom-r   hand shadow" id="btnAgregarCliente">
+                    <i class="fal fa-plus"></i>
+                </button> 
             `;
             
 
@@ -266,20 +258,20 @@ function getView(){
                                         
                                         <div class="form-group">
                                             <label>Dia Visita:</label>
-                                            <select class="form-control negrita text-danger">
-                                                <option value="1">LUNES</option>
-                                                <option value="2">MARTES</option>
-                                                <option value="3">MIERCOLES</option>
-                                                <option value="4">JUEVES</option>
-                                                <option value="5">VIERNES</option>
-                                                <option value="6">SABADO</option>
-                                                <option value="7">DOMINGO</option>
+                                            <select class="form-control negrita text-danger" id="cmbVisitaCliente">
+                                                <option value="LUNES">LUNES</option>
+                                                <option value="MARTES">MARTES</option>
+                                                <option value="MIERCOLES">MIERCOLES</option>
+                                                <option value="JUEVES">JUEVES</option>
+                                                <option value="VIERNES">VIERNES</option>
+                                                <option value="SABADO">SABADO</option>
+                                                <option value="DOMINGO">DOMINGO</option>
                                             </select>
                                         </div>
 
                                         <div class="form-group">
                                             <label>Tipo:</label>
-                                            <select class="form-control negrita text-danger">
+                                            <select class="form-control negrita text-danger" id="cmbTipoCliente">
                                                 <option value="casa_particular">CASA PARTICULAR</option>
                                                 <option value="tienda">TIENDA</option>
                                                 <option value="instituciones">INSTITUCIONES</option>
@@ -288,22 +280,22 @@ function getView(){
 
                                         <div class="form-group">
                                             <label>Nombre:</label>
-                                            <input type="text" class="form-control"/>
+                                            <input type="text" class="form-control" id="txtNombreCliente"/>
                                         </div>
 
                                         <div class="form-group">
                                             <label>Direccion:</label>
-                                            <input type="text" class="form-control"/>
+                                            <input type="text" class="form-control" id="txtDireccionCliente"/>
                                         </div>
 
                                         <div class="form-group">
                                             <label>Telefono:</label>
-                                            <input type="text" class="form-control"/>
+                                            <input type="text" class="form-control" id="txtTelefonoCliente"/>
                                         </div>
 
                                         <div class="form-group">
                                             <label>Referencia:</label>
-                                            <input type="text" class="form-control"/>
+                                            <input type="text" class="form-control" id="txtReferenciaCliente"/>
                                         </div>
 
 
@@ -318,7 +310,7 @@ function getView(){
                                 <button class="btn btn-circle btn-xl btn-bottom-l btn-secondary hand shadow" data-dismiss="modal">
                                     <i class="fal fa-times"></i>
                                 </button>
-                                <button class="btn btn-circle btn-xl btn-info btn-bottom-r hand shadow" data-dismiss="modal">
+                                <button class="btn btn-circle btn-xl btn-info btn-bottom-r hand shadow" id="btnGuardarCliente">
                                     <i class="fal fa-save"></i>
                                 </button>
                             </div>
@@ -364,6 +356,59 @@ function addListeners(){
     })
 
 
+    let btnGuardarCliente = document.getElementById('btnGuardarCliente');
+    btnGuardarCliente.addEventListener('click',()=>{
+
+
+
+        F.Confirmacion("¿Está seguro que desea Guardar este nuevo Cliente?")
+        .then((value)=>{
+            if(value==true){
+
+                let tipo = document.getElementById('cmbTipoCliente').value;
+                let nombre = document.getElementById('txtNombreCliente').value;
+                let direccion = document.getElementById('txtDireccionCliente').value;
+                let telefono = document.getElementById('txtTelefonoCliente').value;
+                let referencia = document.getElementById('txtReferenciaCliente').value;
+                let visita = document.getElementById('cmbVisitaCliente').value;
+                let latitud = '0';
+                let longitud = '0';
+
+
+                btnGuardarCliente.disabled = true;
+                btnGuardarCliente.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
+
+                insert_cliente(tipo,nombre,direccion,telefono,referencia,visita,latitud,longitud)
+                .then(()=>{
+                    
+                    F.Aviso('Cliente guardado exitosamente!!');
+                    
+                    document.getElementById('txtFiltrar').value = nombre;
+                    get_lista_clientes();
+
+                    $("#modal_nuevo_cliente").modal('hide');
+                    limpiar_datos_cliente();
+
+                    btnGuardarCliente.disabled = false;
+                    btnGuardarCliente.innerHTML = `<i class="fal fa-save"></i>`;
+
+                })
+                .catch(()=>{
+                    F.AvisoError('No se pudo guardar el cliente');
+                    btnGuardarCliente.disabled = false;
+                    btnGuardarCliente.innerHTML = `<i class="fal fa-save"></i>`;
+                })  
+
+            }
+        })
+
+    })
+
+
+
+
+
+
     F.slideAnimationTabs();
 
 };
@@ -374,3 +419,83 @@ function initView(){
     addListeners();
 
 };
+
+
+function limpiar_datos_cliente(){
+
+    document.getElementById('txtNombreCliente').value = '';
+    document.getElementById('txtDireccionCliente').value = '';
+    document.getElementById('txtTelefonoCliente').value = '';
+    document.getElementById('txtReferenciaCliente').value = '';
+
+
+}
+
+
+function get_lista_clientes(){
+
+    let filtro = document.getElementById('txtFiltrar').value || '';
+    if(filtro==''){F.AvisoError('Escriba un codigo o nombre para buscar');return;}
+
+    let container = document.getElementById('tblDataClientes');
+    container.innerHTML = GlobalLoader;
+    let str = '';
+
+
+    axios.post('/lista_clientes',{
+        filtro:filtro
+    })
+    .then((response) => {
+        let data = response.data;
+        if(Number(data.rowsAffected[0])>0){
+            data.recordset.map((r)=>{
+                str += `
+                                <tr>
+                                    <td>${r.NOMBRE}</td>
+                                    <td>${r.DIRECCION}</td>
+                                    <td>${r.TELEFONO}</td>
+                                </tr>
+                `
+            })
+
+            container.innerHTML = str;
+        }else{
+            container.innerHTML = 'No hay datos...'
+        }             
+    }, (error) => {
+        container.innerHTML = 'No hay datos...'
+    });
+
+
+}
+
+
+function insert_cliente(tipo,nombre,direccion,telefono,referencia,visita,latitud,longitud){
+
+    return new Promise((resolve,reject)=>{
+
+        axios.post('/insert_cliente',{
+            tipo:tipo,
+            nombre:nombre,
+            direccion:direccion,
+            telefono:telefono,
+            referencia:referencia,
+            visita:visita,
+            latitud:latitud,
+            longitud:longitud
+        })
+        .then((response) => {
+            let data = response.data;
+            if(Number(data.rowsAffected[0])>0){
+                resolve(data);
+            }else{
+                reject();
+            }             
+        }, (error) => {
+            reject();
+        });
+    
+
+    })
+   
+}

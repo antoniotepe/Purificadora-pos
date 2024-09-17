@@ -52,24 +52,36 @@ app.get("/login",function(req,res){
   res.redirect('/');
 }); 
 
-// DESPACHO //
 
-app.get("/despacho",function(req,res){
+app.post("/lista_clientes",function(req,res){
 
-    const {empnit,coddoc,correlativo} = req.query;
+    const {filtro} = req.body;
 
+    let qry = `SELECT top 70 TIPO,NOMBRE,DIRECCION,TELEFONO,REFERENCIA,VISITA,LATITUD,LONGITUD
+      FROM POS_CLIENTES WHERE NOMBRE LIKE '%${filtro}%';`
+
+
+    execute.Query(res,qry)
+
+}); 
+
+
+app.post("/insert_cliente",function(req,res){
+
+  const {tipo,nombre,direccion,telefono,referencia,visita,latitud,longitud} = req.body;
+
+  let qry = `INSERT INTO POS_CLIENTES 
+              (TIPO,NOMBRE,DIRECCION,TELEFONO,REFERENCIA,VISITA,LATITUD,LONGITUD)
+                VALUES
+              ('${tipo}','${nombre}','${direccion}','${telefono}','${referencia}','${visita}','${latitud}','${longitud}')
+            `
+
+            console.log(qry)
+
+  execute.Query(res,qry)
 
 }); 
 
-app.get("/despacho_finalizado",function(req,res){
-
-  const {empnit,coddoc,correlativo} = req.query;
-
-  io.emit('fin_despacho', empnit,coddoc,correlativo);
-
-  res.send('ok')
-
-}); 
 
 
 app.use("/",router);
@@ -78,8 +90,6 @@ app.use("*",function(req,res){
   res.redirect('/');
   //res.send('<h1 class="text-danger">NO DISPONIBLE</h1>');
 });
-
-
 
 
 
