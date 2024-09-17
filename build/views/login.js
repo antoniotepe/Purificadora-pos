@@ -51,7 +51,9 @@ function getView(){
                         <input type="password" class="form-control negrita">
                     </div>
                     <div class="form-group">
-                        <button type="button" class="btn btn-info">Iniciar sesión</button>
+                        <button type="button" class="btn btn-info btn-xxl">
+                            <i class="fal fa-sign-in"></i>
+                        </button>
                     </div>
                    
                 </div>

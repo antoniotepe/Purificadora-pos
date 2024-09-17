@@ -9,7 +9,7 @@ function getView(){
                             ${view.vista_listado()}
                         </div>
                         <div class="tab-pane fade" id="dos" role="tabpanel" aria-labelledby="home-tab">
-                           ${view.vista_clientes()}
+                           ${view.vista_clientes() + view.vista_modal_cliente()}
                         </div>
                         <div class="tab-pane fade" id="tres" role="tabpanel" aria-labelledby="home-tab">
                             ${view.vista_nuevo()}
@@ -98,7 +98,6 @@ function getView(){
             </button>
             `
         },
-
         vista_clientes:()=>{
             return `
 
@@ -110,8 +109,7 @@ function getView(){
                             <h1 class="negrita">Listado Clientes</h1>
                         </div>
                         <div class="col-sm-8 col-md-5 col-lg-5 col-xl-5">
-                            <input class="form-control" type="search" placeholder="Buscar Cliente">
-                            <button class="btn btn-outline-success btn-sm hand shadow">Buscar Cliente</button>
+                           
                         </div>
                     
                         <div>
@@ -121,7 +119,15 @@ function getView(){
 
                     <br>
 
-                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input class="form-control" type="search" placeholder="Buscar Cliente">
+                            <button class="btn btn-info btn-sm hand shadow">
+                                <i class="fal fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
                         <div class="table-responsive col-12">
                             <table class="table table-responsive col-12">
                                 <thead class="bg-naranja text-white">
@@ -148,15 +154,7 @@ function getView(){
                         </div>
 
                         <br>
-                        <div class="row">
-                            <div class="col-6">
-                            </div>
-                            <div class="col-6">
-                               <button class="btn btn-circle btn-xl btn-success  hand shadow">
-                                        <i class="fal fa-plus"></i>
-                                </button> 
-                            </div>
-                        </div>
+                       
 
                     </div>
              </div>
@@ -167,14 +165,14 @@ function getView(){
                     <i class="fal fa-arrow-left"></i>
                 </button>
 
-                <button class="btn btn-circle btn-xl btn-secondary btn-bottom-r hand shadow" id="btnSiguiente">
-                    <i class="fal fa-arrow-right"></i>
-                </button>
+                
+                 <button class="btn btn-circle btn-xl btn-success btn-bottom-r   hand shadow" id="btnAgregarCliente">
+                                        <i class="fal fa-plus"></i>
+                                </button> 
             `;
             
 
         },
-
         vista_nuevo:()=>{
             return `
                 <div class="card card-rounded shadow">
@@ -222,7 +220,6 @@ function getView(){
 
             `
         },
-
         vista_pedidos:()=> {
             return `
                 <div class="card card-rounded shadow">
@@ -230,6 +227,7 @@ function getView(){
                     <div class="card-body p-2">
                         <div class="row">
                             <div class="col-6">
+                                <h1 style="font-size:280%" class="negrita text-danger">Consumidor final</h1>
                                 <h1>Total pedido</h1>
                             </div>
                             <div class="col-6">
@@ -238,17 +236,96 @@ function getView(){
                         </div>
 
                         <div class="row">
-                                <div class="col-12">
-                                    <button class="btn btn-success btn-xl hand shadow">Guardar pedido</button>
+                            <div class="col-12">
+                            </div>
+                                
+                        </div>
+                    </div>
+                </div>
+                                
+                        <button class="btn btn-circle btn-xl btn-secondary btn-bottom-l hand shadow" id="btnAtrasAgregarPedido">
+                            <i class="fal fa-arrow-left"></i>
+                        </button>
+                        <button class="btn btn-circle btn-xl btn-success btn-bottom-r hand shadow" id="">
+                            <i class="fal fa-save"></i>
+                        </button>
+            `;
+        },
+        vista_modal_cliente:()=> {
+            return `
+ 
+                <div class="modal fade js-modal-settings modal-backdrop-transparent  modal-with-scroll" tabindex="-1" role="dialog" aria-hidden="true" id="modal_nuevo_cliente">
+                    <div class="modal-dialog modal-dialog-right modal-xl">
+                        <div class="modal-content">
+                            
+
+
+                            <div class="modal-body p-2">
+                                <div class="card card-rounded shadow p-2">
+                                    <div class="card-body">
+                                        
+                                        <div class="form-group">
+                                            <label>Dia Visita:</label>
+                                            <select class="form-control negrita text-danger">
+                                                <option value="1">LUNES</option>
+                                                <option value="2">MARTES</option>
+                                                <option value="3">MIERCOLES</option>
+                                                <option value="4">JUEVES</option>
+                                                <option value="5">VIERNES</option>
+                                                <option value="6">SABADO</option>
+                                                <option value="7">DOMINGO</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Tipo:</label>
+                                            <select class="form-control negrita text-danger">
+                                                <option value="casa_particular">CASA PARTICULAR</option>
+                                                <option value="tienda">TIENDA</option>
+                                                <option value="instituciones">INSTITUCIONES</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Nombre:</label>
+                                            <input type="text" class="form-control"/>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Direccion:</label>
+                                            <input type="text" class="form-control"/>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Telefono:</label>
+                                            <input type="text" class="form-control"/>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Referencia:</label>
+                                            <input type="text" class="form-control"/>
+                                        </div>
+
+
+                                    </div>
                                 </div>
+                            
+                                
+                                
                                 
                             </div>
+                            <div class="modal-footer text-center">
+                                <button class="btn btn-circle btn-xl btn-bottom-l btn-secondary hand shadow" data-dismiss="modal">
+                                    <i class="fal fa-times"></i>
+                                </button>
+                                <button class="btn btn-circle btn-xl btn-info btn-bottom-r hand shadow" data-dismiss="modal">
+                                    <i class="fal fa-save"></i>
+                                </button>
+                            </div>
                         </div>
-                </div>
+                    </div>
+                </div>            
 
-                <button class="btn btn-circle btn-xl btn-secondary btn-bottom-l hand shadow" id="btnAtrasAgregarPedido">
-                    <i class="fal fa-arrow-left"></i>
-                </button>
             `;
         }
 
@@ -272,11 +349,7 @@ function addListeners(){
 
     document.getElementById('btnAtrasNuevo').addEventListener('click',()=>{
         document.getElementById('tab-dos').click();
-    })
-
-    document.getElementById('btnSiguiente').addEventListener('click', () => {
-        document.getElementById('tab-tres').click();
-    })
+    }) 
 
     document.getElementById('btnSiguienteFinPedido').addEventListener('click', () => {
         document.getElementById('tab-cuatro').click();
@@ -284,6 +357,10 @@ function addListeners(){
 
     document.getElementById('btnAtrasAgregarPedido').addEventListener('click', () => {
         document.getElementById('tab-tres').click();
+    })
+
+    document.getElementById('btnAgregarCliente').addEventListener('click', () => {
+        $("#modal_nuevo_cliente").modal('show')
     })
 
 
