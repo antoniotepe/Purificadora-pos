@@ -83,6 +83,35 @@ app.post("/insert_cliente",function(req,res){
 }); 
 
 
+app.post("/lista_empleado",function(req,res){
+
+  //const {filtro} = req.body;
+
+  let qry = `SELECT TIPO,NOMBRE,TELEFONO,CLAVE,LATITUD,LONGITUD,HABILITADO
+            FROM POS_EMPLEADOS `
+
+
+  execute.Query(res,qry)
+
+}); 
+
+app.post("/insert_empleado",function(req,res){
+
+  const {tipo,nombre,telefono,clave} = req.body;
+
+  let qry = `INSERT INTO POS_EMPLEADOS 
+              (TIPO,NOMBRE,TELEFONO,CLAVE,LATITUD,LONGITUD,HABILITADO)
+                VALUES
+              ('${tipo}','${nombre}','${telefono}','${clave}','0','0','SI')
+            `
+
+            console.log(qry)
+
+  execute.Query(res,qry)
+
+}); 
+
+
 
 app.use("/",router);
 

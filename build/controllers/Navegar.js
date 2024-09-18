@@ -10,5 +10,11 @@ let Navegar = {
         .then(()=>{
             initView();
         })
+    },
+    gerencia:()=> {
+        F.loadScript('./views/gerencia.js', 'root')
+        .then(()=>{
+            initView();
+        })
     }
 }
