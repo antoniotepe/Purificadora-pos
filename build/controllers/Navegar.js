@@ -16,5 +16,11 @@ let Navegar = {
         .then(()=>{
             initView();
         })
+    },
+    productos:()=> {
+        F.loadScript('./views/productos.js', 'root')
+        .then(() => {
+            initView();
+        })
     }
 }

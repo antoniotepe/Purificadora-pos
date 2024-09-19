@@ -112,6 +112,32 @@ app.post("/insert_empleado",function(req,res){
 }); 
 
 
+app.post("/lista_producto", function(req, res) {
+
+  // const {filtro} = req.body;
+
+  let qry = `SELECT CODPROD,DESPROD,CODMEDIDA,COSTO,PRECIO,ACTIVO
+            FROM POS_PRODUCTOS`
+          
+  execute.Query(res,qry)
+
+});
+
+app.post("/insert_producto", function(req,res) {
+
+  const {codprod,desprod,codmedida,uxc,costo,precio} = req.body;
+
+  let qry = ` INSERT INTO POS_PRODUCTOS
+              (CODPROD,DESPROD,CODMEDIDA,UXC,COSTO,PRECIO,ACTIVO)
+                VALUES
+              ('${codprod}','${desprod}','${codmedida}','${uxc}','${costo}','${precio}','SI')
+            `
+
+            console.log(qry);
+      
+  execute.Query(res,qry)
+
+});
 
 app.use("/",router);
 

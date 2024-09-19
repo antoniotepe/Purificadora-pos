@@ -37,3 +37,4 @@ InicializarServiceWorkerNotif();
 Navegar.login();
 Navegar.ventas();
 Navegar.gerencia();
+Navegar.productos();

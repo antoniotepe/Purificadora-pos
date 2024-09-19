@@ -6,7 +6,7 @@ function getView(){
                 <div class="col-12 p-0 bg-white">
                     <div class="tab-content" id="myTabHomeContent">
                         <div class="tab-pane fade show active" id="uno" role="tabpanel" aria-labelledby="receta-tab">
-                            ${view.vista_listado() + view.vista_modal_usuarios()}
+                            ${view.vista_listado() + view.vista_modal_productos()}
                         </div>
                         <div class="tab-pane fade" id="dos" role="tabpanel" aria-labelledby="home-tab">
                            
@@ -39,24 +39,29 @@ function getView(){
             return `
             <div class="card card-rounded shadow">
                 <div class="card-body p-2">
-                    <h1 style="font-size:280%" class="negrita text-left">Empleados</h1>
+
+                    <h1 style="font-size:280%" class="negrita text-left">Productos</h1>
+
                     <div class="table-responsive col-12">
                         <table class="table table-responsive table-hover col-12">
                             <thead class="bg-naranja text-white">
                                 <tr>
-                                    <td>TIPO</td>
-                                    <td>NOMBRE</td>
-                                    <td>TELEFONO</td>
-                                    <td>CLAVE</td>
+                                    <td>Codigo Producto</td>
+                                    <td>Descripción Producto</td>
+                                    <td>Medida</td>
+                                    <td>Costo</td>
+                                    <td>Precio</td>
+                                    <td>Activo</td>
                                 </tr>
                             </thead>
-                            <tbody id="tblDataUsuarios">
+                            <tbody id="tblDataProductos">
                             </tbody>
                         </table>
 
-                        <button class="btn btn-circle btn-xl btn-success btn-bottom-r hand shadow" id="btnAgregarUsuario">
+                        <button class="btn btn-circle btn-xl btn-success btn-bottom-r hand shadow" id="btnAgregarProducto">
                             <i class="fal fa-plus"></i>
-                        </button>
+                        </button>                        
+
                     </div>
                 </div>
             </div>
@@ -65,10 +70,10 @@ function getView(){
         vista_nuevo:()=>{
 
         },
-        vista_modal_usuarios:()=>{
+        vista_modal_productos:()=>{
             return `
  
-                <div class="modal fade js-modal-settings modal-backdrop-transparent  modal-with-scroll" tabindex="-1" role="dialog" aria-hidden="true" id="modal_nuevo_usuario">
+                <div class="modal fade js-modal-settings modal-backdrop-transparent  modal-with-scroll" tabindex="-1" role="dialog" aria-hidden="true" id="modal_nuevo_producto">
                     <div class="modal-dialog modal-dialog-right modal-xl">
                         <div class="modal-content">
                             
@@ -78,30 +83,32 @@ function getView(){
                                 <div class="card card-rounded shadow p-2">
                                     <div class="card-body">
                                         
-                                       <h1 style="font-size:280%" class="negrita text-left">Agregar Empleado</h1>
+                                       <h1 style="font-size:280%" class="negrita text-left">Agregar Producto</h1>
 
                                         <div class="form-group">
-                                            <label>Tipo:</label>
-                                            <select class="form-control negrita text-danger" id="cmbTipoEmpleado">
-                                                <option value="vendedor">VENDEDOR</option>
-                                                <option value="gerente">GERENTE</option>
-                                            </select>
+                                            <label>Código del producto:</label>
+                                            <input type="text" class="form-control" id="txtCodigoProducto"/>
+                                        </div>
+                                        
+
+
+                                        <div class="form-group">
+                                            <label>Descripción Producto:</label>
+                                            <input type="text" class="form-control" id="txtDescripcionProducto"/>
                                         </div>
 
-                                       <div class="form-group">
-                                            <label>Nombre:</label>
-                                            <input type="text" class="form-control" id="txtNombreEmpleado"/>
+
+
+                                        <div class="form-group">
+                                            <label>Costo:</label>
+                                            <input type="text" class="form-control" id="txtCostoProducto"/>
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Telefono:</label>
-                                            <input type="text" class="form-control" id="txtTelefonoEmpleado"/>
+                                            <label>Precio:</label>
+                                            <input type="text" class="form-control" id="txtPrecioProducto"/>
                                         </div>
-
-                                        <div class="form-group">
-                                            <label>Clave:</label>
-                                            <input type="text" class="form-control" id="txtClaveEmpleado"/>
-                                        </div>
+           
 
                                     </div>
                                 </div>
@@ -114,7 +121,7 @@ function getView(){
                                 <button class="btn btn-circle btn-xl btn-bottom-l btn-secondary hand shadow" data-dismiss="modal">
                                     <i class="fal fa-times"></i>
                                 </button>
-                                <button class="btn btn-circle btn-xl btn-info btn-bottom-r hand shadow" id="btnGuardarEmpleado">
+                                <button class="btn btn-circle btn-xl btn-info btn-bottom-r hand shadow" id="btnGuardarProducto">
                                     <i class="fal fa-save"></i>
                                 </button>
                             </div>
@@ -125,6 +132,7 @@ function getView(){
             `;
 
         }
+
     }
 
     root.innerHTML = view.body();
@@ -133,50 +141,45 @@ function getView(){
 
 function addListeners(){
 
-
-
-
-    document.getElementById('btnAgregarUsuario').addEventListener('click', () => {
-        $("#modal_nuevo_usuario").modal('show')
+    document.getElementById('btnAgregarProducto').addEventListener('click', () => {
+        $("#modal_nuevo_producto").modal('show')
     })
 
+    get_lista_productos();
 
-    get_lista_empleados()
-
-
-    let btnGuardarEmpleado = document.getElementById('btnGuardarEmpleado');
-    btnGuardarEmpleado.addEventListener('click', ()=> {
+    let btnGuardarProducto = document.getElementById('btnGuardarProducto');
+    btnGuardarProducto.addEventListener('click', ()=> {
 
         F.Confirmacion("¿Está seguro que desea Guardar este nuevo Empleado?")
         .then((value) => {
             if(value==true) {
 
-                let tipo = document.getElementById('cmbTipoEmpleado').value;
-                let nombre = document.getElementById('txtNombreEmpleado').value;
-                let telefono = document.getElementById('txtTelefonoEmpleado').value;
-                let clave = document.getElementById('txtClaveEmpleado').value;
-                let latitud = '0';
-                let longitud = '0';
-                let habilitado = 'SI';
+                let codprod = document.getElementById('txtCodigoProducto').value;
+                let desprod = document.getElementById('txtDescripcionProducto').value;
+                let codmedida = 'UNIDAD';
+                let uxc = '1';
+                let costo = document.getElementById('txtCostoProducto').value;
+                let precio = document.getElementById('txtPrecioProducto').value;
+                let activo = 'SI';
 
-                btnGuardarEmpleado.disabled = true;
-                btnGuardarEmpleado.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
+                btnGuardarProducto.disabled = true;
+                btnGuardarProducto.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
 
-                insert_empleado(tipo,nombre,telefono,clave,latitud,longitud,habilitado)
+                insert_producto(codprod,desprod,codmedida,uxc,costo,precio)
                 .then(()=> {
                     
-                    F.Aviso('Empleado guardado exitosamente!!!');    
-                    get_lista_empleados()
-                    $("#modal_nuevo_empleado").modal('hide');
-                    limpiar_datos_empleado();
+                    F.Aviso('Producto guardado exitosamente!!!');    
+                    get_lista_productos()
+                    $("#modal_nuevo_producto").modal('hide');
+                    limpiar_datos_productos();
 
-                    btnGuardarEmpleado.disabled = false;
-                    btnGuardarEmpleado.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
+                    btnGuardarProducto.disabled = false;
+                    btnGuardarProducto.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
                 })
                 .cath(()=> {
-                    F.AvisoError('No se pudo guardar el empleado');
-                    btnGuardarEmpleado.disabled = false;
-                    btnGuardarEmpleado.innerHTML = `<i class="fal fa-save"></i>`;
+                    F.AvisoError('No se pudo guardar el producto');
+                    btnGuardarProducto.disabled = false;
+                    btnGuardarProducto.innerHTML = `<i class="fal fa-save"></i>`;
 
                 })
 
@@ -184,7 +187,6 @@ function addListeners(){
         })
 
     })
-
 };
 
 function initView(){
@@ -194,58 +196,59 @@ function initView(){
 
 };
 
-function limpiar_datos_empleado() {
-    document.getElementById('cmbTipoEmpleado').value = '';
-    document.getElementById('txtNombreEmpleado').value = '';
-    document.getElementById('txtTelefonoEmpleado').value = '';
-    document.getElementById('txtClaveEmpleado').value = '';
-}
 
-function get_lista_empleados(){
-
-
-    let container = document.getElementById('tblDataUsuarios');
+function get_lista_productos() {
+    
+    let container = document.getElementById('tblDataProductos');
     container.innerHTML = GlobalLoader;
     let str = '';
 
-
-    axios.post('/lista_empleado',{
-        filtro:''
-    })
-    .then((response) => {
+    axios.post('/lista_producto', {
+        filtro: ''
+    }).then((response) => {
         let data = response.data;
-        if(Number(data.rowsAffected[0])>0){
-            data.recordset.map((r)=>{
+        if(Number(data.rowsAffected[0])>0) {
+            data.recordset.map((r) => {
                 str += `
-                                <tr>
-                                    <td>${r.TIPO}</td>
-                                    <td>${r.NOMBRE}</td>
-                                    <td>${r.TELEFONO}</td>
-                                    <td>${r.CLAVE}</td>
-                                    <td>${r.HABILITADO}</td>
-                                </tr>
+                            <tr>
+                                <td>${r.CODPROD}</td>
+                                <td>${r.DESPROD}</td>
+                                <td>${r.CODMEDIDA}</td>
+                                <td>${r.COSTO}</td>
+                                <td>${r.PRECIO}</td>
+                                <td>${r.ACTIVO}</td>
+                            </tr>
+                
                 `
             })
-
             container.innerHTML = str;
-        }else{
+        }else {
             container.innerHTML = 'No hay datos...'
-        }             
+        }
     }, (error) => {
         container.innerHTML = 'No hay datos...'
     });
+
 }
 
+function limpiar_datos_productos() {
+    
+    document.getElementById('txtCodigoProducto').value = '';
+    document.getElementById('txtDescripcionProducto').value = '';
+    document.getElementById('txtCostoProducto').value = '';
+    document.getElementById('txtPrecioProducto').value = '';
+}
 
-
-function insert_empleado(tipo,nombre,telefono,clave) {
+function insert_producto(codprod,desprod,codmedida,uxc,costo,precio) {
     return new Promise((resolve, reject) => {
 
-        axios.post('/insert_empleado', {
-            tipo:tipo,
-            nombre:nombre,
-            telefono:telefono,
-            clave:clave
+        axios.post('/insert_producto', {
+            codprod:codprod,
+            desprod:desprod,
+            codmedida:codmedida,
+            uxc:uxc,
+            costo:costo,
+            precio:precio,
         })
         .then((response) => {
             let data = response.data;
@@ -260,3 +263,4 @@ function insert_empleado(tipo,nombre,telefono,clave) {
 
     })
 }
+

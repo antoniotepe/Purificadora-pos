@@ -44,11 +44,11 @@ function getView(){
                     </div>
                     <div class="form-group">
                         <label>Usuario</label>
-                        <input type="text" class="form-control negrita">
+                        <input type="text" class="form-control negrita" id="usuarioLogin">
                     </div>
                     <div class="form-group">
                         <label>Contraseña</label>
-                        <input type="password" class="form-control negrita">
+                        <input type="password" class="form-control negrita" id="contrasenaLogin">
                     </div>
                     <div class="form-group">
                         <button type="button" class="btn btn-info btn-xxl">
