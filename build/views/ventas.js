@@ -193,11 +193,8 @@ function getView(){
                                     <td>SUBTOTAL</td>
                                 </tr>
                             </thead>
-                            <tbody id="tblPedidos">
-                                <td>GARRAFON</td>
-                                <td> <button class="btn">+</button> 1 <button class="btn">-</button></td>
-                                <td>Q10.00</td>
-                                <td>Q10.00</td>
+                            <tbody id="tblDataPedidos">
+                                
                             </tbody>
                         </table>
                     </div>
@@ -406,7 +403,7 @@ function addListeners(){
 
 
 
-
+    get_lista_productos_pedido();
 
 
     F.slideAnimationTabs();
@@ -450,10 +447,15 @@ function get_lista_clientes(){
         if(Number(data.rowsAffected[0])>0){
             data.recordset.map((r)=>{
                 str += `
-                                <tr>
+                                <tr class="hand" onclick="go_to_pedido('${r.CODCLIE}','${r.NOMBRE}')">
                                     <td>${r.NOMBRE}</td>
                                     <td>${r.DIRECCION}</td>
                                     <td>${r.TELEFONO}</td>
+                                    <td>
+                                        <button class="btn btn-info btn-circle btn-md hand shadow">
+                                            <i class="fal fa-plus"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                 `
             })
@@ -469,6 +471,38 @@ function get_lista_clientes(){
 
 }
 
+
+function get_lista_productos_pedido() {
+    let container = document.getElementById('tblDataPedidos');
+    container.innerHTML = GlobalLoader;
+    let str = '';
+
+
+    axios.post('/lista_producto', {
+        filtro: ''
+    }).then((response) => {
+        let data = response.data;
+        if(Number(data.rowsAffected[0])>0) {
+            data.recordset.map((r) => {
+                str += `
+                            <tr>
+                                <td>${r.DESPROD}</td>
+                                <td> <button class="btn" onclick="">+</button> 0 <button class="btn" onclick="">-</button></td>
+                                <td>${F.setMoneda(r.PRECIO,'Q.')}</td>
+                                <td>${F.setMoneda('10', 'Q.')}</td>
+                            </tr>                
+                `
+            })
+            container.innerHTML = str;
+        }else {
+            container.innerHTML = 'No hay datos...'
+        }
+    }, (error) => {
+        container.innerHTML = 'No hay datos...'
+    });
+
+
+}
 
 function insert_cliente(tipo,nombre,direccion,telefono,referencia,visita,latitud,longitud){
 
@@ -499,3 +533,14 @@ function insert_cliente(tipo,nombre,direccion,telefono,referencia,visita,latitud
     })
    
 }
+
+
+function go_to_pedido(codclie,nomclie){
+
+    document.getElementById("tab-tres").click();
+
+
+
+
+}
+

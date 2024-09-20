@@ -6,7 +6,7 @@ function getView(){
                 <div class="col-12 p-0 bg-white">
                     <div class="tab-content" id="myTabHomeContent">
                         <div class="tab-pane fade show active" id="uno" role="tabpanel" aria-labelledby="receta-tab">
-                            ${view.vista_listado() + view.vista_modal_productos()}
+                            ${view.vista_listado() + view.vista_modal_productos() + view.vista_modal_editar_productos()}
                         </div>
                         <div class="tab-pane fade" id="dos" role="tabpanel" aria-labelledby="home-tab">
                            
@@ -48,7 +48,6 @@ function getView(){
                                 <tr>
                                     <td>Codigo Producto</td>
                                     <td>Descripción Producto</td>
-                                    <td>Medida</td>
                                     <td>Costo</td>
                                     <td>Precio</td>
                                     <td>Activo</td>
@@ -131,7 +130,69 @@ function getView(){
 
             `;
 
-        }
+        },
+        vista_modal_editar_productos:()=>{
+            return `
+ 
+                <div class="modal fade js-modal-settings modal-backdrop-transparent  modal-with-scroll" tabindex="-1" role="dialog" aria-hidden="true" id="modal_editar_producto">
+                    <div class="modal-dialog modal-dialog-right modal-xl">
+                        <div class="modal-content">
+                            
+
+
+                            <div class="modal-body p-2">
+                                <div class="card card-rounded shadow p-2">
+                                    <div class="card-body">
+                                        
+                                       <h1 style="font-size:280%" class="negrita text-left">Editar Producto</h1>
+
+                                        <div class="form-group">
+                                            <label>Código del producto:</label>
+                                            <input type="text" class="form-control" id="txtCodigoProductoE" disabled="true" />
+                                        </div>
+                                        
+
+
+                                        <div class="form-group">
+                                            <label>Descripción Producto:</label>
+                                            <input type="text" class="form-control" id="txtDescripcionProductoE"/>
+                                        </div>
+
+
+
+                                        <div class="form-group">
+                                            <label>Costo:</label>
+                                            <input type="text" class="form-control" id="txtCostoProductoE"/>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Precio:</label>
+                                            <input type="text" class="form-control" id="txtPrecioProductoE"/>
+                                        </div>
+           
+
+                                    </div>
+                                </div>
+                            
+                                
+                                
+                                
+                            </div>
+                            <div class="modal-footer text-center">
+                                <button class="btn btn-circle btn-xl btn-bottom-l btn-secondary hand shadow" data-dismiss="modal">
+                                    <i class="fal fa-times"></i>
+                                </button>
+                                <button class="btn btn-circle btn-xl btn-info btn-bottom-r hand shadow" id="btnEditarProducto">
+                                    <i class="fal fa-save"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>            
+
+            `;
+
+        },
 
     }
 
@@ -187,6 +248,9 @@ function addListeners(){
         })
 
     })
+
+
+
 };
 
 function initView(){
@@ -213,10 +277,15 @@ function get_lista_productos() {
                             <tr>
                                 <td>${r.CODPROD}</td>
                                 <td>${r.DESPROD}</td>
-                                <td>${r.CODMEDIDA}</td>
-                                <td>${r.COSTO}</td>
-                                <td>${r.PRECIO}</td>
+                                <td>${F.setMoneda(r.COSTO, 'Q.')}</td>
+                                <td>${F.setMoneda(r.PRECIO,'Q.')}</td>
                                 <td>${r.ACTIVO}</td>
+                                <td>
+                                    <button class="btn btn-info btn-circle btn-md hand shadow" 
+                                    onclick="get_datos_producto('${r.CODPROD}','${r.DESPROD}','${r.COSTO}','${r.PRECIO}')">
+                                        <i class="fal fa-edit"></i>
+                                    </button>
+                                </td>
                             </tr>
                 
                 `
@@ -264,3 +333,76 @@ function insert_producto(codprod,desprod,codmedida,uxc,costo,precio) {
     })
 }
 
+
+function get_datos_producto(codprod,desprod,costo,precio){
+
+    $("#modal_editar_producto").modal('show')   
+    
+    let codprodE = document.getElementById("txtCodigoProductoE").value = codprod;
+    document.getElementById("txtDescripcionProductoE").value = desprod;
+    document.getElementById("txtCostoProductoE").value = costo;
+    document.getElementById("txtPrecioProductoE").value = precio;
+
+
+    let btnEditarProducto = document.getElementById('btnEditarProducto');
+    btnEditarProducto.addEventListener('click', ()=> {
+
+        F.Confirmacion("¿Está seguro que desear editar el producto?")
+        .then((value) => {
+            if(value==true) {
+                
+                let desprodE = document.getElementById('txtDescripcionProductoE').value;
+                let costoE = document.getElementById('txtCostoProductoE').value;
+                let precioE = document.getElementById('txtPrecioProductoE').value; 
+
+                btnEditarProducto.disabled = true;
+                btnEditarProducto.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
+
+                update_producto(codprodE,desprodE,costoE,precioE)
+                .then(() => {
+                  
+                    F.Aviso('Producto editado exitosamente!!!');
+                    get_lista_productos()
+                    $("#modal_editar_producto").modal('hide');
+                    limpiar_datos_productos();
+
+                    btnEditarProducto.disabled = false;
+                    btnEditarProducto.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
+                })
+                .catch(()=> {
+                    F.AvisoError('No se pudo guardar el producto');
+                    btnEditarProducto.disabled = false;
+                    btnEditarProducto.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
+
+                })
+
+            }
+        })
+
+    })
+
+}
+
+function update_producto(codprod,desprod,costo,precio) {
+    return new Promise((resolve, reject) => {
+
+        axios.post('/update_producto', {
+            codprod:codprod,
+            desprod:desprod,
+            costo:costo,
+            precio:precio
+        })
+        .then((response) => {
+            let data = response.data;
+            if(Number(data.rowsAffected[0])>0) {
+                resolve(data);
+            }else {
+                reject();
+            }
+        }, (error) => {
+            reject();
+        });
+
+    })
+
+}

@@ -57,7 +57,7 @@ app.post("/lista_clientes",function(req,res){
 
     const {filtro} = req.body;
 
-    let qry = `SELECT top 70 TIPO,NOMBRE,DIRECCION,TELEFONO,REFERENCIA,VISITA,LATITUD,LONGITUD
+    let qry = `SELECT top 70 CODCLIE, TIPO,NOMBRE,DIRECCION,TELEFONO,REFERENCIA,VISITA,LATITUD,LONGITUD
       FROM POS_CLIENTES WHERE NOMBRE LIKE '%${filtro}%';`
 
 
@@ -87,7 +87,7 @@ app.post("/lista_empleado",function(req,res){
 
   //const {filtro} = req.body;
 
-  let qry = `SELECT TIPO,NOMBRE,TELEFONO,CLAVE,LATITUD,LONGITUD,HABILITADO
+  let qry = `SELECT CODEMP,TIPO,NOMBRE,TELEFONO,CLAVE,LATITUD,LONGITUD,HABILITADO
             FROM POS_EMPLEADOS `
 
 
@@ -136,6 +136,58 @@ app.post("/insert_producto", function(req,res) {
             console.log(qry);
       
   execute.Query(res,qry)
+
+});
+
+app.post("/update_producto", function(req, res) {
+
+  const {codprod,desprod,costo,precio} = req.body;
+
+  let qry = `
+          UPDATE POS_PRODUCTOS
+          SET DESPROD='${desprod}',
+            COSTO=${costo},
+            PRECIO=${precio}
+          WHERE CODPROD='${codprod}'
+          
+        `;
+
+        console.log(qry);
+
+      execute.Query(res,qry)
+});
+
+app.post("/update_empleado", function(req, res) {
+
+  const {codemp,tipo,nombre,telefono,clave} = req.body;
+
+  let qry = `
+          UPDATE POS_EMPLEADOS
+          SET TIPO='${tipo}',
+              NOMBRE='${nombre}',
+              TELEFONO='${telefono}',
+              CLAVE='${clave}'
+            WHERE CODEMP=${codemp}
+    `;
+
+    console.log(qry);
+
+    execute.Query(res,qry);
+
+});
+
+app.post("/update_empleado_habilitado", function(req, res) {
+  const {codemp,habilitado} = req.body;
+
+  let qry = `
+          UPDATE POS_EMPLEADOS
+          SET HABILITADO='${habilitado}'
+          WHERE CODEMP=${codemp}
+  `;
+
+  console.log(qry);
+
+  execute.Query(res,qry);
 
 });
 

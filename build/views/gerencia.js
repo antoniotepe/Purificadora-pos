@@ -6,7 +6,7 @@ function getView(){
                 <div class="col-12 p-0 bg-white">
                     <div class="tab-content" id="myTabHomeContent">
                         <div class="tab-pane fade show active" id="uno" role="tabpanel" aria-labelledby="receta-tab">
-                            ${view.vista_listado() + view.vista_modal_usuarios()}
+                            ${view.vista_listado() + view.vista_modal_empleados() + view.vista_modal_editar_empleados()}
                         </div>
                         <div class="tab-pane fade" id="dos" role="tabpanel" aria-labelledby="home-tab">
                            
@@ -48,6 +48,7 @@ function getView(){
                                     <td>NOMBRE</td>
                                     <td>TELEFONO</td>
                                     <td>CLAVE</td>
+                                    <td>HABILITADO</td>
                                 </tr>
                             </thead>
                             <tbody id="tblDataUsuarios">
@@ -65,7 +66,7 @@ function getView(){
         vista_nuevo:()=>{
 
         },
-        vista_modal_usuarios:()=>{
+        vista_modal_empleados:()=>{
             return `
  
                 <div class="modal fade js-modal-settings modal-backdrop-transparent  modal-with-scroll" tabindex="-1" role="dialog" aria-hidden="true" id="modal_nuevo_usuario">
@@ -115,6 +116,66 @@ function getView(){
                                     <i class="fal fa-times"></i>
                                 </button>
                                 <button class="btn btn-circle btn-xl btn-info btn-bottom-r hand shadow" id="btnGuardarEmpleado">
+                                    <i class="fal fa-save"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>            
+
+            `;
+
+        },
+        vista_modal_editar_empleados:()=>{
+            return `
+ 
+                <div class="modal fade js-modal-settings modal-backdrop-transparent  modal-with-scroll" tabindex="-1" role="dialog" aria-hidden="true" id="modal_editar_empleado">
+                    <div class="modal-dialog modal-dialog-right modal-xl">
+                        <div class="modal-content">
+                            
+
+
+                            <div class="modal-body p-2">
+                                <div class="card card-rounded shadow p-2">
+                                    <div class="card-body">
+                                        
+                                       <h1 style="font-size:280%" class="negrita text-left">Editar Empleado</h1>
+
+                                        <div class="form-group">
+                                            <label>Tipo:</label>
+                                            <select class="form-control negrita text-danger" id="cmbTipoEmpleadoE">
+                                                <option value="vendedor">VENDEDOR</option>
+                                                <option value="gerente">GERENTE</option>
+                                            </select>
+                                        </div>
+
+                                       <div class="form-group">
+                                            <label>Nombre:</label>
+                                            <input type="text" class="form-control" id="txtNombreEmpleadoE"/>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Telefono:</label>
+                                            <input type="text" class="form-control" id="txtTelefonoEmpleadoE"/>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Clave:</label>
+                                            <input type="text" class="form-control" id="txtClaveEmpleadoE"/>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            
+                                
+                                
+                                
+                            </div>
+                            <div class="modal-footer text-center">
+                                <button class="btn btn-circle btn-xl btn-bottom-l btn-secondary hand shadow" data-dismiss="modal">
+                                    <i class="fal fa-times"></i>
+                                </button>
+                                <button class="btn btn-circle btn-xl btn-info btn-bottom-r hand shadow" id="btnEditarEmpleado">
                                     <i class="fal fa-save"></i>
                                 </button>
                             </div>
@@ -216,13 +277,28 @@ function get_lista_empleados(){
         let data = response.data;
         if(Number(data.rowsAffected[0])>0){
             data.recordset.map((r)=>{
+                let strHabilitado ="";
+                if(r.HABILITADO=='SI'){strHabilitado="btn-success"}else{strHabilitado="btn-danger"}
                 str += `
                                 <tr>
                                     <td>${r.TIPO}</td>
                                     <td>${r.NOMBRE}</td>
                                     <td>${r.TELEFONO}</td>
                                     <td>${r.CLAVE}</td>
-                                    <td>${r.HABILITADO}</td>
+                                    <td>
+                                        ${r.HABILITADO}
+                                        <button class=" btn ${strHabilitado} btn-circle btn-md hand shadow" 
+                                            onclick="get_desbloqueo('${r.CODEMP}','${r.HABILITADO}')">
+                                            <i class="fal fa-sync"></i>
+                                        </button>
+
+                                    </td>
+                                    <td>
+                                    <button class="btn btn-info btn-circle btn-md hand shadow" 
+                                    onclick="get_datos_empleado('${r.CODEMP}','${r.TIPO}','${r.NOMBRE}','${r.TELEFONO}','${r.CLAVE}')">
+                                        <i class="fal fa-edit"></i>
+                                    </button>
+                                    </td>
                                 </tr>
                 `
             })
@@ -258,5 +334,131 @@ function insert_empleado(tipo,nombre,telefono,clave) {
             reject();
         });
 
+    })
+}
+
+
+function get_datos_empleado(codemp,tipo,nombre,telefono,clave){
+
+    $("#modal_editar_empleado").modal('show')   
+    
+    document.getElementById("cmbTipoEmpleadoE").value = tipo;
+    document.getElementById("txtNombreEmpleadoE").value = nombre;
+    document.getElementById("txtTelefonoEmpleadoE").value = telefono;
+    document.getElementById("txtClaveEmpleadoE").value = clave;
+
+
+    let btnEditarEmpleado = document.getElementById('btnEditarEmpleado');
+    btnEditarEmpleado.addEventListener('click', ()=> {
+
+        F.Confirmacion("¿Está seguro que desear editar el producto?")
+        .then((value) => {
+            if(value==true) {
+                
+                let tipoE = document.getElementById('cmbTipoEmpleadoE').value;
+                let nombreE = document.getElementById('txtNombreEmpleadoE').value;
+                let telefonoE = document.getElementById('txtTelefonoEmpleadoE').value;
+                let claveE = document.getElementById('txtClaveEmpleadoE').value;
+
+                btnEditarEmpleado.disabled = true;
+                btnEditarEmpleado.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
+
+                update_empleado(codemp,tipoE,nombreE,telefonoE,claveE)
+                .then(() => {
+                  
+                    F.Aviso('Empleado editado exitosamente!!!');
+                    get_lista_empleados()
+                    $("#modal_editar_empleado").modal('hide');
+                    limpiar_datos_empleado();
+
+                    btnEditarEmpleado.disabled = false;
+                    btnEditarEmpleado.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
+                })
+                .catch(()=> {
+                    F.AvisoError('No se pudo guardar el empleado');
+                    btnEditarEmpleado.disabled = false;
+                    btnEditarEmpleado.innerHTML = `<i class="fal fa-save fa-spin"></i>`;
+
+                })
+
+            }
+        })
+
+    })
+
+}
+
+function update_empleado(codemp,tipo,nombre,telefono,clave) {
+    return new Promise((resolve, reject) => {
+
+        axios.post('/update_empleado', {
+            codemp:codemp,
+            tipo:tipo,
+            nombre:nombre,
+            telefono:telefono,
+            clave:clave
+        })
+        .then((response) => {
+            let data = response.data;
+            if(Number(data.rowsAffected[0])>0) {
+                resolve(data);
+            }else {
+                reject();
+            }
+        }, (error) => {
+            reject();
+        });
+
+    })
+
+}
+
+function get_desbloqueo(codemp,habilitado) 
+{
+    let desbloquear = habilitado;
+
+    if(desbloquear == 'SI') {
+        desbloquear = 'NO';
+    }else if(desbloquear == 'NO'){
+        desbloquear = 'SI';
+    }
+
+    console.log(desbloquear);
+    update_habilitado(codemp, desbloquear)
+    .then(()=>{
+        get_lista_empleados();
+        console.log(desbloquear);
+    
+    })
+    .catch(()=>{
+        F.AvisoError("No se pudo cambiar el estado del empleado")        
+    })
+
+    
+
+    
+    
+    
+}
+
+function update_habilitado(codemp, habilitado) {
+    
+    return new Promise((resolve, reject) => {
+    
+        axios.post('/update_empleado_habilitado', {
+            codemp:codemp,
+            habilitado:habilitado
+        })
+        .then((response) => {
+            let data = response.data;
+            if(Number(data.rowsAffected[0])>0) {
+                resolve(data);
+            }else {
+                reject();
+            }
+        }, (error) => {
+            reject();
+        });
+    
     })
 }
