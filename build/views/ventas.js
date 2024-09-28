@@ -175,7 +175,7 @@ function getView(){
                             <h1>TOMAR PEDIDO</h1>
                         </div>
                         <div class="col-sm-6  col-md-8 col-lg-8 col-xl-8">
-                            <h1  style="font-size:280%" class="text-right negrita text-danger">Q30.00</h1>
+                            <h1  style="font-size:280%" class="text-right negrita text-danger" id="totalFinal">Q0.00</h1>
                         </div>
                     </div>
 
@@ -187,7 +187,7 @@ function getView(){
                         <table class="table table-responsive table-hover col-12">
                             <thead class="bg-naranja text-white">
                                 <tr>
-                                    <td></td>
+                                    <td>DESCRIPCION</td>
                                     <td>CANTIDAD</td>
                                     <td>PRECIO</td>
                                     <td>SUBTOTAL</td>
@@ -477,32 +477,74 @@ function get_lista_productos_pedido() {
     container.innerHTML = GlobalLoader;
     let str = '';
 
-
     axios.post('/lista_producto', {
         filtro: ''
     }).then((response) => {
         let data = response.data;
         if(Number(data.rowsAffected[0])>0) {
-            data.recordset.map((r) => {
+            data.recordset.forEach((r) => {
+                // Asumimos que cada producto tiene un código único (CODPROD)
+                let idProducto = r.CODPROD;
                 str += `
-                            <tr>
-                                <td>${r.DESPROD}</td>
-                                <td> <button class="btn" onclick="">+</button> 0 <button class="btn" onclick="">-</button></td>
-                                <td>${F.setMoneda(r.PRECIO,'Q.')}</td>
-                                <td>${F.setMoneda('10', 'Q.')}</td>
-                            </tr>                
-                `
-            })
+                    <tr>
+                        <td>${r.DESPROD}</td>
+                        <td>
+                            <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', -1)">-</button>
+                            <span id="cantidad-${idProducto}">0</span>
+                            <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', 1)">+</button>
+                        </td>
+                        <td>${F.setMoneda(r.PRECIO,'Q.')}</td>
+                        <td id="subtotal-${idProducto}">${F.setMoneda('0', 'Q.')}</td>
+                    </tr>                
+                `;
+            });
             container.innerHTML = str;
-        }else {
-            container.innerHTML = 'No hay datos...'
+            
+            // Almacenar los datos del producto en una variable global para fácil acceso
+            window.datosProductos = data.recordset.reduce((acc, producto) => {
+                acc[producto.CODPROD] = producto;
+                return acc;
+            }, {});
+        } else {
+            container.innerHTML = 'No hay datos...';
         }
     }, (error) => {
-        container.innerHTML = 'No hay datos...'
+        container.innerHTML = 'No hay datos...';
     });
-
-
 }
+
+function cambiarCantidad(idProducto, cambio) {
+    let elementoCantidad = document.getElementById(`cantidad-${idProducto}`);
+    let elementoSubtotal = document.getElementById(`subtotal-${idProducto}`);
+    let cantidadActual = parseInt(elementoCantidad.textContent);
+    let nuevaCantidad = Math.max(0, cantidadActual + cambio); // Asegurarse de que la cantidad no baje de 0
+    
+    elementoCantidad.textContent = nuevaCantidad;
+    
+    // Calcular y actualizar el subtotal
+    let precio = parseFloat(window.datosProductos[idProducto].PRECIO);
+    let subtotal = nuevaCantidad * precio;
+    elementoSubtotal.textContent = F.setMoneda(subtotal.toFixed(2), 'Q.');
+    
+    actualizarTotal();
+}
+
+function actualizarTotal() {
+    let total = 0;
+    Object.keys(window.datosProductos).forEach((idProducto) => {
+        let cantidad = parseInt(document.getElementById(`cantidad-${idProducto}`).textContent);
+        total += cantidad * parseFloat(window.datosProductos[idProducto].PRECIO);
+    });
+    
+    // Actualizar la visualización del total
+    let elementoTotal = document.querySelector('.text-right.negrita.text-danger');
+    let mostrarTotalAPagar = document.getElementById('totalFinal');
+    if (elementoTotal) {
+        elementoTotal.textContent = F.setMoneda(total.toFixed(2), 'Q.');
+        mostrarTotalAPagar.textContent = F.setMoneda(total.toFixed(2), 'Q.');
+    }
+}
+
 
 function insert_cliente(tipo,nombre,direccion,telefono,referencia,visita,latitud,longitud){
 
