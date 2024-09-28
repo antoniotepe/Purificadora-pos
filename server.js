@@ -191,6 +191,21 @@ app.post("/update_empleado_habilitado", function(req, res) {
 
 });
 
+// Consulta para traer la lista de los productos
+app.post("/catalogo_productos", function(req, res) {
+  const {codprod,desprod,codmedida,uxc,costo,precio,mayorista,activo} = req.body;
+
+  let qry = `
+                SELECT CODPROD,DESPROD,CODMEDIDA,UXC,COSTO,PRECIO,MAYORISTA,ACTIVO
+                FROM POS_PRODUCTOS
+            `;
+
+  console.log(qry);
+
+  execute.Query(res,qry);
+
+})
+
 app.use("/",router);
 
 app.use("*",function(req,res){
