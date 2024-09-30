@@ -116,7 +116,7 @@ app.post("/lista_producto", function(req, res) {
 
   // const {filtro} = req.body;
 
-  let qry = `SELECT CODPROD,DESPROD,CODMEDIDA,COSTO,PRECIO,ACTIVO
+  let qry = `SELECT CODPROD,DESPROD,CODMEDIDA,0 AS CANTIDAD, COSTO,PRECIO,ACTIVO
             FROM POS_PRODUCTOS`
           
   execute.Query(res,qry)

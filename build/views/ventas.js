@@ -326,6 +326,8 @@ function getView(){
 
 function addListeners(){
 
+    JSONdocproductos = []
+
     document.getElementById('txtFecha').value = F.getFecha();
 
     document.getElementById('btnNuevo').addEventListener('click',()=>{
@@ -416,7 +418,7 @@ function initView(){
     addListeners();
 
 };
-
+JSONdocproductos
 
 function limpiar_datos_cliente(){
 
@@ -472,6 +474,7 @@ function get_lista_clientes(){
 }
 
 
+
 function get_lista_productos_pedido() {
     let container = document.getElementById('tblDataPedidos');
     container.innerHTML = GlobalLoader;
@@ -505,6 +508,10 @@ function get_lista_productos_pedido() {
                 acc[producto.CODPROD] = producto;
                 return acc;
             }, {});
+
+            
+            JSONdocproductos.push(window.datosProductos)
+    
         } else {
             container.innerHTML = 'No hay datos...';
         }
@@ -520,13 +527,29 @@ function cambiarCantidad(idProducto, cambio) {
     let nuevaCantidad = Math.max(0, cantidadActual + cambio); // Asegurarse de que la cantidad no baje de 0
     
     elementoCantidad.textContent = nuevaCantidad;
+
+
+    
+
     
     // Calcular y actualizar el subtotal
     let precio = parseFloat(window.datosProductos[idProducto].PRECIO);
     let subtotal = nuevaCantidad * precio;
     elementoSubtotal.textContent = F.setMoneda(subtotal.toFixed(2), 'Q.');
     
+
+    //modifica la cantidad en el objeto docproductos
+    console.log(JSONdocproductos)
+    JSONdocproductos.map((r)=>{
+        if(r.CODPROD.toString()==idProducto.toString()){
+            console.log("AQUI CAMBIA LA NUEVA CANTIDAD, ACTUAL: " + r.nuevaCantidad.toString())
+        }
+    })
+    
+
     actualizarTotal();
+
+
 }
 
 function actualizarTotal() {
@@ -543,6 +566,7 @@ function actualizarTotal() {
         elementoTotal.textContent = F.setMoneda(total.toFixed(2), 'Q.');
         mostrarTotalAPagar.textContent = F.setMoneda(total.toFixed(2), 'Q.');
     }
+ 
 }
 
 

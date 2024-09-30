@@ -16,6 +16,9 @@ let GlobalSignoMoneda = 'Q'
 let data_empresas = [];
 
 
+let JSONdocproductos = []
+
+
 let root = document.getElementById('root');
 let cmbEmpresa = document.getElementById('cmbEmpresa');
 
