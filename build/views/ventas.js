@@ -478,45 +478,47 @@ function get_lista_clientes(){
 function get_lista_productos_pedido() {
     let container = document.getElementById('tblDataPedidos');
     container.innerHTML = GlobalLoader;
+
+    initDB().then(() => {
+        axios.post('/lista_producto', {
+            filtro: ''
+        }).then((response) => {
+            let data = response.data;
+            if(Number(data.rowsAffected[0])>0) {
+                saveProductos(data.recordset).then(() => {
+                    renderProductosTable();
+                });
+            } else {
+                container.innerHTML = 'No hay datos...';
+            }
+        }, (error) => {
+            container.innerHTML = 'No hay datos...';
+        });
+    });
+}
+
+function renderProductosTable() {
+    let container = document.getElementById('tblDataPedidos');
     let str = '';
 
-    axios.post('/lista_producto', {
-        filtro: ''
-    }).then((response) => {
-        let data = response.data;
-        if(Number(data.rowsAffected[0])>0) {
-            data.recordset.forEach((r) => {
-                // Asumimos que cada producto tiene un código único (CODPROD)
-                let idProducto = r.CODPROD;
-                str += `
-                    <tr>
-                        <td>${r.DESPROD}</td>
-                        <td>
-                            <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', -1)">-</button>
-                            <span id="cantidad-${idProducto}">0</span>
-                            <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', 1)">+</button>
-                        </td>
-                        <td>${F.setMoneda(r.PRECIO,'Q.')}</td>
-                        <td id="subtotal-${idProducto}">${F.setMoneda('0', 'Q.')}</td>
-                    </tr>                
-                `;
-            });
-            container.innerHTML = str;
-            
-            // Almacenar los datos del producto en una variable global para fácil acceso
-            window.datosProductos = data.recordset.reduce((acc, producto) => {
-                acc[producto.CODPROD] = producto;
-                return acc;
-            }, {});
-
-            
-            JSONdocproductos.push(window.datosProductos)
-    
-        } else {
-            container.innerHTML = 'No hay datos...';
-        }
-    }, (error) => {
-        container.innerHTML = 'No hay datos...';
+    getAllProductos().then(productos => {
+        productos.forEach((r) => {
+            let idProducto = r.CODPROD;
+            str += `
+                <tr>
+                    <td>${r.DESPROD}</td>
+                    <td>
+                        <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', -1)">-</button>
+                        <span id="cantidad-${idProducto}">${r.cantidad}</span>
+                        <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', 1)">+</button>
+                    </td>
+                    <td>${F.setMoneda(r.PRECIO,'Q.')}</td>
+                    <td id="subtotal-${idProducto}">${F.setMoneda((r.cantidad * r.PRECIO).toFixed(2), 'Q.')}</td>
+                </tr>                
+            `;
+        });
+        container.innerHTML = str;
+        actualizarTotal();
     });
 }
 
@@ -524,51 +526,28 @@ function cambiarCantidad(idProducto, cambio) {
     let elementoCantidad = document.getElementById(`cantidad-${idProducto}`);
     let elementoSubtotal = document.getElementById(`subtotal-${idProducto}`);
     let cantidadActual = parseInt(elementoCantidad.textContent);
-    let nuevaCantidad = Math.max(0, cantidadActual + cambio); // Asegurarse de que la cantidad no baje de 0
+    let nuevaCantidad = Math.max(0, cantidadActual + cambio);
     
-    elementoCantidad.textContent = nuevaCantidad;
-
-
-    
-
-    
-    // Calcular y actualizar el subtotal
-    let precio = parseFloat(window.datosProductos[idProducto].PRECIO);
-    let subtotal = nuevaCantidad * precio;
-    elementoSubtotal.textContent = F.setMoneda(subtotal.toFixed(2), 'Q.');
-    
-
-    //modifica la cantidad en el objeto docproductos
-    console.log(JSONdocproductos)
-    JSONdocproductos.map((r)=>{
-        if(r.CODPROD.toString()==idProducto.toString()){
-            console.log("AQUI CAMBIA LA NUEVA CANTIDAD, ACTUAL: " + r.nuevaCantidad.toString())
-        }
-    })
-    
-
-    actualizarTotal();
-
-
+    updateProductoCantidad(idProducto, nuevaCantidad).then(producto => {
+        elementoCantidad.textContent = nuevaCantidad;
+        let subtotal = nuevaCantidad * producto.PRECIO;
+        elementoSubtotal.textContent = F.setMoneda(subtotal.toFixed(2), 'Q.');
+        actualizarTotal();
+    });
 }
 
 function actualizarTotal() {
-    let total = 0;
-    Object.keys(window.datosProductos).forEach((idProducto) => {
-        let cantidad = parseInt(document.getElementById(`cantidad-${idProducto}`).textContent);
-        total += cantidad * parseFloat(window.datosProductos[idProducto].PRECIO);
+    getAllProductos().then(productos => {
+        let total = productos.reduce((sum, producto) => sum + (producto.cantidad * producto.PRECIO), 0);
+        
+        let elementoTotal = document.querySelector('.text-right.negrita.text-danger');
+        let mostrarTotalAPagar = document.getElementById('totalFinal');
+        if (elementoTotal) {
+            elementoTotal.textContent = F.setMoneda(total.toFixed(2), 'Q.');
+            mostrarTotalAPagar.textContent = F.setMoneda(total.toFixed(2), 'Q.');
+        }
     });
-    
-    // Actualizar la visualización del total
-    let elementoTotal = document.querySelector('.text-right.negrita.text-danger');
-    let mostrarTotalAPagar = document.getElementById('totalFinal');
-    if (elementoTotal) {
-        elementoTotal.textContent = F.setMoneda(total.toFixed(2), 'Q.');
-        mostrarTotalAPagar.textContent = F.setMoneda(total.toFixed(2), 'Q.');
-    }
- 
 }
-
 
 function insert_cliente(tipo,nombre,direccion,telefono,referencia,visita,latitud,longitud){
 
@@ -606,7 +585,7 @@ function go_to_pedido(codclie,nomclie){
     document.getElementById("tab-tres").click();
 
 
-
-
 }
+
+
 
