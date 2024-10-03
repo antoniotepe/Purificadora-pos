@@ -15,6 +15,7 @@ var io = require('socket.io')(http, { cors: { origin: '*' } });
 
 
 const cors = require('cors');
+const { exec } = require("child_process");
 app.use(cors({
     origin: '*'
 }));
@@ -53,6 +54,43 @@ app.get("/login",function(req,res){
 }); 
 
 
+
+app.post("/insert_pedido", function(req, res) {
+
+  const {codclie,nomclie,fecha,tblProductos} = req.body;
+
+  console.log(req.body)
+
+  let qry = '';
+  let Productos = JSON.parse(tblProductos);
+  let str = ''
+  Productos.map((r)=>{
+
+    if(Number(r.CANTIDAD)==0){
+
+    }else{
+          str += `INSERT INTO POS_ORDERS 
+                    (CODCLIE,FECHA,ANIO,MES,CODPROD,DESPROD,CANTIDAD,COSTO,PRECIO,TOTALCOSTO,TOTALPRECIO)
+                  SELECT ${codclie} AS CODCLIE, '${fecha}' AS FECHA, 0 AS ANIO, 0 AS MES, 
+                      '${r.CODPROD}' AS CODPROD,'${r.DESPROD}' AS DESPROD,
+                      ${r.CANTIDAD} AS CANTIDAD, ${r.COSTO} AS COSTO, ${r.PRECIO} AS PRECIO,
+                      ${Number(r.COSTO)*Number(r.CANTIDAD)} AS TOTALCOSTO,
+                      ${Number(r.PRECIO)*Number(r.CANTIDAD)} AS TOTALPRECIO;
+                    ` 
+    }
+  })
+
+  qry = str;
+  
+          
+  console.log(qry);
+
+
+  execute.Query(res,qry)
+
+});
+
+
 app.post("/lista_clientes",function(req,res){
 
     const {filtro} = req.body;
@@ -81,6 +119,31 @@ app.post("/insert_cliente",function(req,res){
   execute.Query(res,qry)
 
 }); 
+
+// app.post("/insert_login", function(req, res) {
+//   const { usuario, clave } = req.body;
+
+//   let qry = `SELECT NOMBRE AS USUARIO, TIPO FROM POS_EMPLEADOS
+//               WHERE NOMBRE='${usuario}' AND CLAVE='${clave}'`;
+
+//   console.log(qry);
+
+//   execute.Query(res,qry);
+
+// })
+
+app.post("/lista_usuarios_login", function(req, res) {
+  const { usuario, clave } = req.body;
+
+  let qry = `SELECT NOMBRE AS usuario, TIPO AS tipo FROM POS_EMPLEADOS
+             WHERE NOMBRE='${usuario}' AND CLAVE='${clave}'`;
+
+  console.log(qry);
+
+  execute.Query(res, qry, (err, result) => {
+
+  });
+});
 
 
 app.post("/lista_empleado",function(req,res){
@@ -122,6 +185,9 @@ app.post("/lista_producto", function(req, res) {
   execute.Query(res,qry)
 
 });
+
+
+
 
 app.post("/insert_producto", function(req,res) {
 

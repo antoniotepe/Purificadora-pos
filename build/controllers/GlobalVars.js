@@ -13,10 +13,7 @@ let GlobalNivelUsuario = 0;
 
 let GlobalBolEditando = false;
 let GlobalSignoMoneda = 'Q'
-let data_empresas = [];
 
-
-let JSONdocproductos = []
 
 
 let root = document.getElementById('root');
@@ -60,6 +57,7 @@ let Selected_existencia = 0;
 let Selected_bono = 0;
 
 let GlobalSelectedCodclie = 0;
+let GlobalSelectedNomclie = '';
 let GlobalSelectedNoOrden = 0;
 let GlobalSelectedCodEquipo = 0;
 let GlobalConfigIVA = 1.12;

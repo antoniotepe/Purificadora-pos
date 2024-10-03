@@ -1,5 +1,5 @@
 ﻿
-let versionapp = "Modif: 13.09.2024"
+let versionapp = "Modif: 30.09.2024"
 
 
 
@@ -35,6 +35,4 @@ InicializarServiceWorkerNotif();
 
 
 Navegar.login();
-Navegar.productos();
-Navegar.gerencia();
 Navegar.ventas();

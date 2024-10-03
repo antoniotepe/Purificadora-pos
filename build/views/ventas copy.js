@@ -175,7 +175,7 @@ function getView(){
                             <h1>TOMAR PEDIDO</h1>
                         </div>
                         <div class="col-sm-6  col-md-8 col-lg-8 col-xl-8">
-                            <h1  style="font-size:280%" class="text-right negrita text-danger"  id="lbTotalVenta">Q0.00</h1>
+                            <h1  style="font-size:280%" class="text-right negrita text-danger" id="totalFinal">Q0.00</h1>
                         </div>
                     </div>
 
@@ -216,11 +216,11 @@ function getView(){
                     <div class="card-body p-2">
                         <div class="row">
                             <div class="col-6">
-                                <h1 style="font-size:280%" class="negrita text-danger" id="lbNomclie">Consumidor final</h1>
+                                <h1 style="font-size:280%" class="negrita text-danger">Consumidor final</h1>
                                 <h1>Total pedido</h1>
                             </div>
                             <div class="col-6">
-                                <h1  style="font-size:280%" class="text-right negrita text-danger" id="lbTotalVenta2">Q30.00</h1>
+                                <h1  style="font-size:280%" class="text-right negrita text-danger">Q30.00</h1>
                             </div>
                         </div>
 
@@ -235,7 +235,7 @@ function getView(){
                         <button class="btn btn-circle btn-xl btn-secondary btn-bottom-l hand shadow" id="btnAtrasAgregarPedido">
                             <i class="fal fa-arrow-left"></i>
                         </button>
-                        <button class="btn btn-circle btn-xl btn-success btn-bottom-r hand shadow" id="btnGuardarPedido">
+                        <button class="btn btn-circle btn-xl btn-success btn-bottom-r hand shadow" id="">
                             <i class="fal fa-save"></i>
                         </button>
             `;
@@ -326,25 +326,15 @@ function getView(){
 
 function addListeners(){
 
-    F.slideAnimationTabs();
+    JSONdocproductos = []
 
-    
     document.getElementById('txtFecha').value = F.getFecha();
 
     document.getElementById('btnNuevo').addEventListener('click',()=>{
         document.getElementById('tab-dos').click();
-        GlobalSelectedCodclie = 0;
-        GlobalSelectedNomclie = '';
-    })
+        
+        get_lista_productos_pedido();
 
-    document.getElementById('txtFiltrar').addEventListener('keyup',(e)=>{
-
-        if (e.key === "Enter") {
-            document.getElementById("btnBuscarCliente").click();
-        }
-        if (e.keycode === 13) {
-            document.getElementById("btnBuscarCliente").click();
-        }
 
     })
 
@@ -362,7 +352,6 @@ function addListeners(){
 
     document.getElementById('btnAtrasAgregarPedido').addEventListener('click', () => {
         document.getElementById('tab-tres').click();
-       
     })
 
     document.getElementById('btnAgregarCliente').addEventListener('click', () => {
@@ -416,52 +405,11 @@ function addListeners(){
             }
         })
 
-
     })
 
 
 
-    let btnGuardarPedido = document.getElementById('btnGuardarPedido');
-    btnGuardarPedido.addEventListener('click',()=>{
-
-            
-           
-
-
-            F.Confirmacion("¿Está seguro que desea Guardar esta Venta?")
-            .then((value)=>{
-                if(value==true){
-
-
-                    btnGuardarPedido.disabled = true;
-                    btnGuardarPedido.innerHTML = `<i class="fal fa-save fa-spin">`;
-
-                    send_pedido()
-                    .then(()=>{
-                        F.Aviso('Pedido guardado exitosamente!!');
-
-                        btnGuardarPedido.disabled = false;
-                        btnGuardarPedido.innerHTML = `<i class="fal fa-save">`;
-
-                        document.getElementById('txtFiltrar').value = '';
-                        document.getElementById('tab-uno').click();
-
-                    })
-                    .catch(()=>{
-                        F.AvisoError("No se pudo guardar");
-                        
-                        btnGuardarPedido.disabled = false;
-                        btnGuardarPedido.innerHTML = `<i class="fal fa-save">`;
-                    })
-
-
-                }
-            })
-
-
-    })
-
-
+    F.slideAnimationTabs();
 
 };
 
@@ -471,48 +419,7 @@ function initView(){
     addListeners();
 
 };
-
-
-
-function send_pedido(){
-
-    return new Promise((resolve,reject)=>{
-
-        db_select_temp_ventas()
-        .then((data)=>{
-
-
-                axios.post('/insert_pedido', 
-                    {
-                        codclie: GlobalSelectedCodclie,
-                        nomclie: GlobalSelectedNomclie,
-                        fecha:F.getFecha(),
-                        tblProductos: JSON.stringify(data)
-                    }
-                ).then((response) => {
-                    let data = response.data;
-                    if(Number(data.rowsAffected[0])>0) {
-                        resolve();
-                    } else {
-                        reject();
-                    }
-                }, (error) => {
-                    reject();
-                });
-
-
-        })
-
-    })
-
-    
-
-
-
-
-}
-
-
+JSONdocproductos
 
 function limpiar_datos_cliente(){
 
@@ -570,115 +477,67 @@ function get_lista_clientes(){
 
 
 function get_lista_productos_pedido() {
-
     let container = document.getElementById('tblDataPedidos');
     container.innerHTML = GlobalLoader;
 
-    //primero elimina la lista de tempventas
-    db_delete_temp_ventas()
-    .then(()=>{
-        //luego carga la lista de productos desde la api 
+    initDB().then(() => {
         axios.post('/lista_producto', {
             filtro: ''
         }).then((response) => {
             let data = response.data;
             if(Number(data.rowsAffected[0])>0) {
-
-                data.recordset.map((r)=>{
-                    //las inserta en la tabla temp de indexedDb
-                    db_load_productos(r)
-                })
-                
-                create_tbl_pedido();
-
+                saveProductos(data.recordset).then(() => {
+                    renderProductosTable();
+                });
             } else {
                 container.innerHTML = 'No hay datos...';
             }
         }, (error) => {
             container.innerHTML = 'No hay datos...';
         });
-
-    })
-
-       
-   
+    });
 }
 
-
-function create_tbl_pedido(){
-
+function renderProductosTable() {
     let container = document.getElementById('tblDataPedidos');
     let str = '';
 
-
-    db_select_temp_ventas()
-    .then((datos)=>{
-
-    
-        datos.map((r)=>{
+    getAllProductos().then(productos => {
+        productos.forEach((r) => {
             let idProducto = r.CODPROD;
-
             str += `
-            <tr>
-                <td>${r.DESPROD}</td>
-                <td>
-                    <button class="btn btn-sm" onclick="cambiarCantidad('${r.CODPROD}', -1,'${r.PRECIO}')">-</button>
-                    <span id="cantidad-${idProducto}">${r.CANTIDAD}</span>
-                    <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', 1,'${r.PRECIO}')">+</button>
-                </td>
-                <td>${F.setMoneda(r.PRECIO,'Q')}</td>
-                <td id="subtotal-${idProducto}">${F.setMoneda((Number(r.CANTIDAD) * Number(r.PRECIO)), 'Q')}</td>
-            </tr>                
+                <tr>
+                    <td>${r.DESPROD}</td>
+                    <td>
+                        <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', -1)">-</button>
+                        <span id="cantidad-${idProducto}">${r.cantidad}</span>
+                        <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', 1)">+</button>
+                    </td>
+                    <td>${F.setMoneda(r.PRECIO,'Q.')}</td>
+                    <td id="subtotal-${idProducto}">${F.setMoneda((r.cantidad * r.PRECIO).toFixed(2), 'Q.')}</td>
+                </tr>                
             `;
-
-        })
-
+        });
         container.innerHTML = str;
-
-    })
-
+        actualizarTotal();
+    });
 }
 
-
-
-function cambiarCantidad(codprod, cambio, precio) {
-    let elementoCantidad = document.getElementById(`cantidad-${codprod}`);
-    let elementoSubtotal = document.getElementById(`subtotal-${codprod}`);
+function cambiarCantidad(idProducto, cambio) {
+    let elementoCantidad = document.getElementById(`cantidad-${idProducto}`);
+    let elementoSubtotal = document.getElementById(`subtotal-${idProducto}`);
     let cantidadActual = parseInt(elementoCantidad.textContent);
     let nuevaCantidad = Math.max(0, cantidadActual + cambio);
     
-
-    elementoCantidad.textContent = nuevaCantidad;
-
-    db_update_cantidad(codprod,nuevaCantidad);
-
-    let subtotal = nuevaCantidad * Number(precio);
-    elementoSubtotal.textContent = F.setMoneda(subtotal, 'Q');
-
-    actualizarTotal();
-
+    updateProductoCantidad(idProducto, nuevaCantidad).then(producto => {
+        elementoCantidad.textContent = nuevaCantidad;
+        let subtotal = nuevaCantidad * producto.PRECIO;
+        elementoSubtotal.textContent = F.setMoneda(subtotal.toFixed(2), 'Q.');
+        actualizarTotal();
+    });
 }
 
 function actualizarTotal() {
-
-    db_select_temp_ventas()
-    .then((datos)=>{
-        let varTotal = 0;
-        datos.map((r)=>{
-            let subtotal = (Number(r.CANTIDAD) * Number(r.PRECIO))
-            varTotal +=  subtotal
-        })
-        
-        document.getElementById('lbTotalVenta').textContent = F.setMoneda(varTotal, 'Q');
-        document.getElementById('lbTotalVenta2').textContent = F.setMoneda(varTotal, 'Q');
-
-
-        
-    })
-
-
-    return;
-    
     getAllProductos().then(productos => {
         let total = productos.reduce((sum, producto) => sum + (producto.cantidad * producto.PRECIO), 0);
         
@@ -724,13 +583,8 @@ function insert_cliente(tipo,nombre,direccion,telefono,referencia,visita,latitud
 
 function go_to_pedido(codclie,nomclie){
 
-    GlobalSelectedCodclie = Number(codclie);
-    GlobalSelectedNomclie = nomclie;
-
-    document.getElementById('lbNomclie').innerText = nomclie;
-
     document.getElementById("tab-tres").click();
-    get_lista_productos_pedido();
+
 
 }
 
