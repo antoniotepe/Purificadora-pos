@@ -48,10 +48,10 @@ function getView(){
                     </div>
                     <div class="form-group">
                         <label>Contraseña</label>
-                        <input type="password" class="form-control negrita" id="contrasenaLogin">
+                        <input type="password" class="form-control negrita" id="claveLogin">
                     </div>
                     <div class="form-group">
-                        <button type="button" class="btn btn-info btn-xxl">
+                        <button type="button" class="btn btn-info btn-xxl" onclick="enviarLogin()">
                             <i class="fal fa-sign-in"></i>
                         </button>
                     </div>
@@ -79,3 +79,40 @@ function initView(){
     addListeners();
 
 };
+
+function enviarLogin() {
+    let usuario = document.getElementById("usuarioLogin").value;
+    let clave = document.getElementById("claveLogin").value;
+    
+    if (!usuario || !clave) {
+        F.Aviso("Por favor, ingrese su usuario y clave");
+        return;
+    }
+
+    // Realizar la solicitud al backend
+    axios.post("/lista_usuarios_login", {
+        usuario: usuario,
+        clave: clave
+    })
+    .then((response) => {
+        let data = response.data;
+
+        // Asegurarse de que haya datos y que la consulta sea exitosa
+        if (data.recordset && data.recordset.length > 0) {
+            let usuarioData = data.recordset[0]; // Obtener el primer (y único) usuario
+            if (usuarioData.tipo === "gerente") {
+                Navegar.gerencia();
+            } else if (usuarioData.tipo === "vendedor") {
+                Navegar.ventas();
+            } else {
+                F.Aviso("Tipo de usuario no reconocido");
+            }
+        } else {
+            F.Aviso("Usuario o contraseña incorrectos");
+        }
+    })
+    .catch((error) => {
+        console.error("Error durante el login:", error);
+        F.Aviso("Hubo un problema al intentar iniciar sesión");
+    });
+}

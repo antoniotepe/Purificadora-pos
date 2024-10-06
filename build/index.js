@@ -35,4 +35,3 @@ InicializarServiceWorkerNotif();
 
 
 Navegar.login();
-Navegar.ventas();

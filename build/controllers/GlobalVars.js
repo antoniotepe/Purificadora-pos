@@ -11,6 +11,9 @@ let GlobalUsuario = '';
 let GlobalPass = '';
 let GlobalNivelUsuario = 0;
 
+// Variable global obtener tipo de usuarios
+let GlobalTipoUsuario = '';
+
 let GlobalBolEditando = false;
 let GlobalSignoMoneda = 'Q'
 
