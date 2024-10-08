@@ -281,6 +281,15 @@ function getView(){
                                             </select>
                                         </div>
 
+                                        <div class="form-group" id="cmbRutasVendedor">
+                                            <label>Ruta</label>
+                                            <select class="form-control negrita text-danger">
+                                                <option value="rut1">RUTA 1</option>
+                                                <option value="rut2">RUTA 2</option>
+                                                <option value="sn">SIN RUTA</option>
+                                            <select>
+                                        </div>
+
                                         <div class="form-group">
                                             <label>Nombre:</label>
                                             <input type="text" class="form-control" id="txtNombreCliente"/>
@@ -628,9 +637,9 @@ function create_tbl_pedido(){
             <tr>
                 <td>${r.DESPROD}</td>
                 <td>
-                    <button class="btn btn-sm" onclick="cambiarCantidad('${r.CODPROD}', -1,'${r.PRECIO}')">-</button>
-                    <span id="cantidad-${idProducto}">${r.CANTIDAD}</span>
-                    <button class="btn btn-sm" onclick="cambiarCantidad('${idProducto}', 1,'${r.PRECIO}')">+</button>
+                    <button class="btn btn-danger rounded-circle" onclick="cambiarCantidad('${r.CODPROD}', -1,'${r.PRECIO}')">-</button>
+                        <span id="cantidad-${idProducto}">${r.CANTIDAD}</span>
+                    <button class="btn btn-success rounded-circle" onclick="cambiarCantidad('${idProducto}', 1,'${r.PRECIO}')">+</button>
                 </td>
                 <td>${F.setMoneda(r.PRECIO,'Q')}</td>
                 <td id="subtotal-${idProducto}">${F.setMoneda((Number(r.CANTIDAD) * Number(r.PRECIO)), 'Q')}</td>

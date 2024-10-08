@@ -22,5 +22,11 @@ let Navegar = {
         .then(() => {
             initView();
         })
+    },
+    clientes:()=> {
+        F.loadScript('./views/clientes.js', 'root')
+        .then(()=> {
+            initView();
+        })
     }
 }
