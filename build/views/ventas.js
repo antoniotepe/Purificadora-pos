@@ -221,6 +221,10 @@ function getView(){
                             </div>
                             <div class="col-6">
                                 <h1  style="font-size:280%" class="text-right negrita text-danger" id="lbTotalVenta2">Q30.00</h1>
+                                <select class="form-control negrita text-danger">
+                                    <option value="cont">CONTADO</option>
+                                    <option value="cred">CREDITO</option>
+                                </select>
                             </div>
                         </div>
 
