@@ -275,7 +275,9 @@ function getView(){
                                             <select class="form-control negrita text-danger" id="cmbTipoCliente">
                                                 <option value="casa_particular">CASA PARTICULAR</option>
                                                 <option value="tienda">TIENDA</option>
-                                                <option value="instituciones">INSTITUCIONES</option>
+                                                <option value="empresarial">EMPRESARIAL</option>
+                                                <option vaue="centros_deportivos">CENTROS DEPORTIVOS</option>
+                                                <option value="centros_educativos">CENTROS EDUCATIVOS</option>
                                             </select>
                                         </div>
 
