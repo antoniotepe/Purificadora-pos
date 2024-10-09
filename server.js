@@ -120,17 +120,6 @@ app.post("/insert_cliente",function(req,res){
 
 }); 
 
-// app.post("/insert_login", function(req, res) {
-//   const { usuario, clave } = req.body;
-
-//   let qry = `SELECT NOMBRE AS USUARIO, TIPO FROM POS_EMPLEADOS
-//               WHERE NOMBRE='${usuario}' AND CLAVE='${clave}'`;
-
-//   console.log(qry);
-
-//   execute.Query(res,qry);
-
-// })
 
 app.post("/lista_usuarios_login", function(req, res) {
   const { usuario, clave } = req.body;
@@ -271,6 +260,39 @@ app.post("/catalogo_productos", function(req, res) {
   execute.Query(res,qry);
 
 })
+
+// Obtener el catalogo de clientes
+app.post("/lista_cliente",function(req,res){
+
+  //const {filtro} = req.body;
+
+  let qry = `SELECT CODCLIE,DPI,NIT,TIPO,NOMBRE,DIRECCION,CODMUN,CODDEPTO,TELEFONO,REFERENCIA,VISITA,LATITUD,LONGITUD,RUTA
+            FROM POS_CLIENTES `
+
+
+  execute.Query(res,qry)
+
+}); 
+
+app.post("/update_cliente", function(req, res) {
+
+  const {codclie,tipo,nombre,direccion,telefono,referencia,visita,ruta} = req.body;
+
+  let qry = `
+          UPDATE POS_EMPLEADOS
+          SET TIPO='${tipo}',
+              NOMBRE='${nombre}',
+              TELEFONO='${telefono}',
+              CLAVE='${clave}'
+            WHERE CODEMP=${codemp}
+    `;
+
+    console.log(qry);
+
+    execute.Query(res,qry);
+
+});
+
 
 app.use("/",router);
 
